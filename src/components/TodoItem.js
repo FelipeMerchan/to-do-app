@@ -2,15 +2,7 @@ import React from 'react';
 
 import './styles/TodoItem.css';
 
-const TodoItem = ({ text, completed }) => {
-  const onComplete = () => {
-    alert(`Completada la tarea + ${text}`)
-  }
-
-  const onDelete = () => {
-    alert(`Se borró la tarea + ${text}`)
-  }
-
+const TodoItem = ({ text, completed, onComplete, onDelete }) => {
   return (
     <li className="TodoItem">
       <span
