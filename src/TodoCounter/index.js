@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './styles/TodoCounter.css';
+import './TodoCounter.css';
 
 const TodoCounter = ({ completedTodos, totalTodos }) => {
   return (
