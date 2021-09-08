@@ -1,34 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { AppUI } from './AppUI';
 
 function useLocalStorage(itemName, initialValue) {
-  const localStorageItem = localStorage.getItem(itemName);
-  let parsedItem = initialValue;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [item, setItem] = useState(initialValue);
 
-  if (!localStorageItem) {
-    localStorage.setItem(itemName, JSON.stringify(initialValue));
-    parsedItem = initialValue;
-  } else {
-    parsedItem = JSON.parse(localStorageItem);
-  }
+  useEffect(() => {
+    setTimeout(() => {
+      try {
+        const localStorageItem = localStorage.getItem(itemName);
+        let parsedItem = initialValue;
 
-  const [item, setItem] = useState(parsedItem);
+        if (!localStorageItem) {
+          localStorage.setItem(itemName, JSON.stringify(initialValue));
+          parsedItem = initialValue;
+        } else {
+          parsedItem = JSON.parse(localStorageItem);
+        }
+
+        setItem(parsedItem);
+        setLoading(false);
+      } catch(error) {
+        setError(error);
+      }
+    }, 1000);
+  }, [itemName, initialValue]);
 
   const saveItem = (newItem) => {
-    const stringifiedItem = JSON.stringify(newItem);
-    localStorage.setItem(itemName, stringifiedItem);
-    setItem(newItem);
+    try {
+      const stringifiedItem = JSON.stringify(newItem);
+      localStorage.setItem(itemName, stringifiedItem);
+      setItem(newItem);
+    } catch(error) {
+      setError(error);
+    }
   }
 
-  return [
+  return {
     item,
-    saveItem
-  ];
+    saveItem,
+    loading,
+    error,
+  };
 }
 
 function App() {
-  const [todos, saveTodos] = useLocalStorage('TODOS_V1', []);
+  const {
+    item: todos,
+    saveItem: saveTodos,
+    loading,
+    error,
+  } = useLocalStorage('TODOS_V1', []);
   const [searchValue, setSearchValue] = useState('');
 
   const completedTodos = todos.filter(todo => !!todo.completed).length;
@@ -62,6 +86,8 @@ function App() {
 
   return (
     <AppUI
+      error={error}
+      loading={loading}
       completedTodos={completedTodos}
       totalTodos={totalTodos}
       searchValue={searchValue}
